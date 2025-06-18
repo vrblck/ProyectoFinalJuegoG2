@@ -93,4 +93,4 @@ public class HexPosition extends Position {
     public String toString() {
         return String.format("HexPosition(q=%d, r=%d, s=%d)", q, r, getS());
     }
-} 
+}

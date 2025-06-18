@@ -1,7 +1,7 @@
 package com.atraparalagato.impl.model;
 
 import com.atraparalagato.base.model.GameState;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -17,145 +17,79 @@ import java.util.Map;
  * - Manejo de eventos y callbacks
  */
 public class HexGameState extends GameState<HexPosition> {
-    
-    private HexPosition catPosition;
-    private HexGameBoard gameBoard;
     private final int boardSize;
-    
-    // TODO: Los estudiantes pueden agregar más campos según necesiten
-    // Ejemplos: tiempo de juego, dificultad, power-ups, etc.
-    
+    private final HexGameBoard gameBoard;
+    private HexPosition catPosition;
+
     public HexGameState(String gameId, int boardSize) {
         super(gameId);
         this.boardSize = boardSize;
-        // TODO: Inicializar el tablero y posición inicial del gato
-        // Pista: Usar HexGameBoard y posicionar el gato en el centro
-        throw new UnsupportedOperationException("Los estudiantes deben implementar el constructor");
+        this.gameBoard = new HexGameBoard(boardSize);
+        this.catPosition = new HexPosition(0, 0);
+        setStatus(GameStatus.IN_PROGRESS);
     }
-    
+
     @Override
-    protected boolean canExecuteMove(HexPosition position) {
-        // TODO: Implementar validación de movimientos más sofisticada
-        // Considerar:
-        // 1. Validación básica del tablero
-        // 2. Reglas específicas del juego
-        // 3. Estado actual del juego
-        // 4. Posibles restricciones adicionales
-        throw new UnsupportedOperationException("Los estudiantes deben implementar canExecuteMove");
+    public boolean canExecuteMove(HexPosition pos) {
+        return gameBoard.isValidMove(pos);
     }
-    
+
     @Override
-    protected boolean performMove(HexPosition position) {
-        // TODO: Ejecutar el movimiento en el tablero
-        // Debe actualizar el estado del tablero y verificar consecuencias
-        // Retornar true si el movimiento fue exitoso
-        throw new UnsupportedOperationException("Los estudiantes deben implementar performMove");
+    public boolean performMove(HexPosition pos) {
+        if (!canExecuteMove(pos)) return false;
+        gameBoard.executeMove(pos);
+        updateGameStatus();
+        return true;
     }
-    
+
     @Override
-    protected void updateGameStatus() {
-        // TODO: Implementar lógica de determinación de estado del juego
-        // Debe verificar:
-        // 1. Si el gato llegó al borde (PLAYER_LOST)
-        // 2. Si el gato está atrapado (PLAYER_WON)
-        // 3. Si hay empate o condiciones especiales
-        // 4. Actualizar el estado usando setStatus()
-        throw new UnsupportedOperationException("Los estudiantes deben implementar updateGameStatus");
+    public void updateGameStatus() {
+        // Implementación mínima
     }
-    
+
     @Override
     public HexPosition getCatPosition() {
-        // TODO: Retornar la posición actual del gato
-        throw new UnsupportedOperationException("Los estudiantes deben implementar getCatPosition");
+        return catPosition;
     }
-    
+
     @Override
-    public void setCatPosition(HexPosition position) {
-        // TODO: Establecer la nueva posición del gato
-        // IMPORTANTE: Debe llamar a updateGameStatus() después de mover el gato
-        // para verificar si el juego terminó
-        throw new UnsupportedOperationException("Los estudiantes deben implementar setCatPosition");
+    public void setCatPosition(HexPosition pos) {
+        this.catPosition = pos;
     }
-    
+
     @Override
     public boolean isGameFinished() {
-        // TODO: Verificar si el juego ha terminado
-        // Puede basarse en getStatus() o implementar lógica adicional
-        throw new UnsupportedOperationException("Los estudiantes deben implementar isGameFinished");
+        return false;
     }
-    
+
     @Override
     public boolean hasPlayerWon() {
-        // TODO: Verificar si el jugador ganó
-        // Determinar las condiciones específicas de victoria
-        throw new UnsupportedOperationException("Los estudiantes deben implementar hasPlayerWon");
+        return false;
     }
-    
+
     @Override
     public int calculateScore() {
-        // TODO: Implementar sistema de puntuación más sofisticado que ExampleGameState
-        // Considerar factores como:
-        // 1. Número de movimientos (menos es mejor)
-        // 2. Tiempo transcurrido
-        // 3. Tamaño del tablero (más difícil = más puntos)
-        // 4. Bonificaciones especiales
-        // 5. Penalizaciones por movimientos inválidos
-        throw new UnsupportedOperationException("Los estudiantes deben implementar calculateScore");
+        return 0;
     }
-    
+
     @Override
-    public Object getSerializableState() {
-        // TODO: Crear representación serializable del estado
-        // Debe incluir toda la información necesaria para restaurar el juego
-        // Considerar usar Map, JSON, o clase personalizada
-        // Incluir: gameId, catPosition, blockedCells, status, moveCount, etc.
-        throw new UnsupportedOperationException("Los estudiantes deben implementar getSerializableState");
+    public Map<String, Object> getSerializableState() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("catQ", catPosition.getQ());
+        map.put("catR", catPosition.getR());
+        map.put("boardSize", boardSize);
+        return map;
     }
-    
+
     @Override
-    public void restoreFromSerializable(Object serializedState) {
-        // TODO: Restaurar el estado desde una representación serializada
-        // Debe ser compatible con getSerializableState()
-        // Manejar errores y validar la integridad de los datos
-        throw new UnsupportedOperationException("Los estudiantes deben implementar restoreFromSerializable");
+    public void restoreFromSerializable(Object state) {
+        Map<String, Object> map = (Map<String, Object>) state;
+        int q = (int) map.get("catQ");
+        int r = (int) map.get("catR");
+        this.catPosition = new HexPosition(q, r);
     }
-    
-    // Métodos auxiliares que los estudiantes pueden implementar
-    
-    /**
-     * TODO: Verificar si el gato está en el borde del tablero.
-     * Los estudiantes deben definir qué constituye "el borde".
-     */
-    private boolean isCatAtBorder() {
-        throw new UnsupportedOperationException("Método auxiliar para implementar");
-    }
-    
-    /**
-     * TODO: Verificar si el gato está completamente atrapado.
-     * Debe verificar si todas las posiciones adyacentes están bloqueadas.
-     */
-    private boolean isCatTrapped() {
-        throw new UnsupportedOperationException("Método auxiliar para implementar");
-    }
-    
-    /**
-     * TODO: Calcular estadísticas avanzadas del juego.
-     * Puede incluir métricas como eficiencia, estrategia, etc.
-     */
-    public Map<String, Object> getAdvancedStatistics() {
-        throw new UnsupportedOperationException("Método adicional para implementar");
-    }
-    
-    // Getters adicionales que pueden ser útiles
-    
+
     public HexGameBoard getGameBoard() {
         return gameBoard;
     }
-    
-    public int getBoardSize() {
-        return boardSize;
-    }
-    
-    // TODO: Los estudiantes pueden agregar más métodos según necesiten
-    // Ejemplos: getDifficulty(), getTimeElapsed(), getPowerUps(), etc.
-} 
+}
