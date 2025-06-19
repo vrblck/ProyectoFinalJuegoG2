@@ -92,4 +92,11 @@ public class HexGameState extends GameState<HexPosition> {
     public HexGameBoard getGameBoard() {
         return gameBoard;
     }
+
+    public Map<String, Object> getAdvancedStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("moveCount", getMoveCount());
+        // Agrega más estadísticas si lo deseas
+        return stats;
+    }
 }

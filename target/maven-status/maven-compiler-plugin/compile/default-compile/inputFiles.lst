@@ -5,8 +5,8 @@
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/example/strategy/SimpleCatMovement.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/impl/model/HexPosition.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/impl/model/HexGameBoard.java
-/workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/AtraparAlGatoApplication.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/impl/model/HexGameState.java
+/workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/AtraparAlGatoApplication.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/example/repository/InMemoryGameRepository.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/impl/strategy/AStarCatMovement.java
 /workspaces/ProyectoFinalJuegoG2/src/main/java/com/atraparalagato/base/model/GameBoard.java

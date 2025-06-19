@@ -1,10 +1,10 @@
 package com.atraparalagato.impl.service;
 
 import com.atraparalagato.base.service.GameService;
-import com.atraparalagato.base.repository.DataRepository;
 import com.atraparalagato.impl.model.HexGameBoard;
 import com.atraparalagato.impl.model.HexGameState;
 import com.atraparalagato.impl.model.HexPosition;
+import com.atraparalagato.base.repository.DataRepository;
 import com.atraparalagato.impl.repository.H2GameRepository;
 import com.atraparalagato.base.strategy.CatMovementStrategy;
 import com.atraparalagato.impl.strategy.AStarCatMovement;
@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import com.atraparalagato.base.model.GameBoard;
+import com.atraparalagato.base.model.GameState;
 
 /**
  * Implementación esqueleto de GameService para el juego hexagonal.
@@ -27,12 +31,34 @@ import java.util.UUID;
  * - Validaciones avanzadas
  * - Integración con repositorio y estrategias
  */
-public class HexGameService extends GameService<HexPosition, HexGameBoard, HexGameState> {
+public class HexGameService extends GameService<HexPosition> {
 
     private final DataRepository<HexGameState, String> repository;
 
+    // Constructor principal
+    public HexGameService(
+        GameBoard<HexPosition> board,
+        CatMovementStrategy<HexPosition> strategy,
+        DataRepository<HexGameState, String> repository,
+        Supplier<String> idSupplier,
+        Function<Integer, GameBoard<HexPosition>> boardFactory,
+        Function<String, HexGameState> stateFactory
+    ) {
+        // Llama al constructor de la superclase con los tipos correctos
+        super(board, strategy, (DataRepository) repository, idSupplier, boardFactory, (Function) stateFactory);
+        this.repository = repository;
+    }
+
+    // Si necesitas un constructor por defecto, inicializa todo con valores por defecto
     public HexGameService() {
-        this.repository = new H2GameRepository();
+        this(
+            new HexGameBoard(9), // Tamaño por defecto
+            new BFSCatMovement(new HexGameBoard(9)),
+            new H2GameRepository(),
+            () -> UUID.randomUUID().toString(),
+            HexGameBoard::new,
+            id -> new HexGameState(id, 9)
+        );
     }
 
     /**
@@ -63,7 +89,8 @@ public class HexGameService extends GameService<HexPosition, HexGameBoard, HexGa
         // Mover el gato según la dificultad (aquí fijo "medium", puedes mejorarlo)
         CatMovementStrategy strategy = createMovementStrategy("medium", state.getGameBoard());
         HexPosition catNext = strategy.getNextMove(state.getCatPosition(), state.getGameBoard());
-        state.setCatPosition(catNext);
+         Optional<HexPosition> next = strategy.findBestMove(state.getCatPosition(), catNext, state.getGameBoard());
+        next.ifPresent(state::setCatPosition);
 
         state.updateGameStatus();
         repository.save(state);
@@ -94,9 +121,9 @@ public class HexGameService extends GameService<HexPosition, HexGameBoard, HexGa
     @Override
     public CatMovementStrategy createMovementStrategy(String difficulty, HexGameBoard board) {
         if ("hard".equalsIgnoreCase(difficulty)) {
-            return new AStarCatMovement();
+            return new AStarCatMovement(board);
         } else {
-            return new BFSCatMovement();
+            return new BFSCatMovement(board);
         }
     }
 
