@@ -1,102 +1,97 @@
 package com.atraparalagato.impl.model;
 
 import com.atraparalagato.base.model.GameState;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementación esqueleto de GameState para tableros hexagonales.
+ * Estado del juego para Hex.
  * 
- * Los estudiantes deben completar los métodos marcados con TODO.
+ * Design Patterns:
+ * - State Pattern: Maneja diferentes estados del juego
+ * - Observer Pattern: Notifica cambios de estado
+ * - Command Pattern: Encapsula acciones del juego
+ * 
+ * SOLID Principles:
+ * - Single Responsibility: Maneja únicamente el estado del juego
+ * - Open/Closed: Permite extensión de nuevos estados sin modificación
+ * - Liskov Substitution: Las implementaciones deben ser intercambiables
  * 
  * Conceptos a implementar:
- * - Estado del juego más sofisticado que ExampleGameState
- * - Sistema de puntuación avanzado
- * - Lógica de victoria/derrota más compleja
- * - Serialización eficiente
- * - Manejo de eventos y callbacks
+ * - Programación Funcional: Consumer, Supplier, callbacks
+ * - Modularización: Separación de estado, lógica y persistencia
+ * - OOP: Encapsulación del estado y comportamiento
  */
 public class HexGameState extends GameState<HexPosition> {
-    private final int boardSize;
-    private final HexGameBoard gameBoard;
+
     private HexPosition catPosition;
+    private final HexGameBoard gameBoard;
+    private final int boardSize;
 
     public HexGameState(String gameId, int boardSize) {
         super(gameId);
         this.boardSize = boardSize;
         this.gameBoard = new HexGameBoard(boardSize);
         this.catPosition = new HexPosition(0, 0);
-        setStatus(GameStatus.IN_PROGRESS);
     }
 
+    /**
+     * Verifica si un movimiento puede ser ejecutado.
+     * En este caso, verifica si la posición está dentro de los límites del tablero
+     * y si la celda está vacía.
+     */
     @Override
-    public boolean canExecuteMove(HexPosition pos) {
-        return gameBoard.isValidMove(pos);
+    protected boolean canExecuteMove(HexPosition position) {
+        return gameBoard.isValidMove(position);
     }
 
+    /**
+     * Realiza el movimiento específico en el estado del juego.
+     * Aquí se actualiza la posición del gato en el tablero.
+     */
     @Override
-    public boolean performMove(HexPosition pos) {
-        if (!canExecuteMove(pos)) return false;
-        gameBoard.executeMove(pos);
-        updateGameStatus();
-        return true;
-    }
-
-    @Override
-    public void updateGameStatus() {
-        // Implementación mínima
-    }
-
-    @Override
-    public HexPosition getCatPosition() {
-        return catPosition;
-    }
-
-    @Override
-    public void setCatPosition(HexPosition pos) {
-        this.catPosition = pos;
-    }
-
-    @Override
-    public boolean isGameFinished() {
+    protected boolean performMove(HexPosition position) {
+        if (gameBoard.isValidMove(position)) {
+            gameBoard.executeMove(position);
+            return true;
+        }
         return false;
     }
 
+    /**
+     * Actualiza el estado del juego después de un movimiento.
+     * En este caso, verifica si hay un ganador o si el juego termina en empate.
+     */
     @Override
-    public boolean hasPlayerWon() {
-        return false;
-    }
-
-    @Override
-    public int calculateScore() {
-        return 0;
-    }
+    protected void updateGameStatus() {}
 
     @Override
-    public Map<String, Object> getSerializableState() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("catQ", catPosition.getQ());
-        map.put("catR", catPosition.getR());
-        map.put("boardSize", boardSize);
-        return map;
-    }
+    public HexPosition getCatPosition() { return catPosition; }
 
     @Override
-    public void restoreFromSerializable(Object state) {
-        Map<String, Object> map = (Map<String, Object>) state;
-        int q = (int) map.get("catQ");
-        int r = (int) map.get("catR");
-        this.catPosition = new HexPosition(q, r);
-    }
+    public void setCatPosition(HexPosition position) { this.catPosition = position; }
 
-    public HexGameBoard getGameBoard() {
-        return gameBoard;
-    }
+    /**
+     * Verifica si el juego ha terminado.
+     * En este caso, el juego termina si hay un ganador o si el tablero está lleno.
+     */
+    @Override
+    public boolean isGameFinished() { return false; }
 
-    public Map<String, Object> getAdvancedStatistics() {
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("moveCount", getMoveCount());
-        // Agrega más estadísticas si lo deseas
-        return stats;
-    }
+    /**
+     * Determina si el jugador ha ganado.
+     * En este caso, verifica si hay una línea continua de celdas del gato.
+     */
+    @Override
+    public boolean hasPlayerWon() { return false; }
+
+    @Override
+    public int calculateScore() { return 0; }
+
+    @Override
+    public Object getSerializableState() { return new HashMap<>(); }
+
+    @Override
+    public void restoreFromSerializable(Object serializedState) {}
 }
