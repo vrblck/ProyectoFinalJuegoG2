@@ -1,41 +1,41 @@
 package com.atraparalagato.impl.repository;
 
+import com.atraparalagato.base.model.GameState;
+import com.atraparalagato.impl.model.HexPosition;
 import com.atraparalagato.base.repository.DataRepository;
-import com.atraparalagato.impl.model.HexGameState;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class H2GameRepository extends DataRepository<HexGameState, String> {
-
+public class H2GameRepository extends DataRepository<GameState<HexPosition>, String> {
     @Override
-    public HexGameState save(HexGameState entity) {
+    public GameState<HexPosition> save(GameState<HexPosition> entity) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public Optional<HexGameState> findById(String id) {
+    public Optional<GameState<HexPosition>> findById(String id) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public List<HexGameState> findAll() {
+    public List<GameState<HexPosition>> findAll() {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public List<HexGameState> findWhere(Predicate<HexGameState> condition) {
+    public List<GameState<HexPosition>> findWhere(Predicate<GameState<HexPosition>> condition) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public <R> List<R> findAndTransform(Predicate<HexGameState> condition, Function<HexGameState, R> transformer) {
+    public <R> List<R> findAndTransform(Predicate<GameState<HexPosition>> condition, Function<GameState<HexPosition>, R> transformer) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public long countWhere(Predicate<HexGameState> condition) {
+    public long countWhere(Predicate<GameState<HexPosition>> condition) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -45,7 +45,7 @@ public class H2GameRepository extends DataRepository<HexGameState, String> {
     }
 
     @Override
-    public long deleteWhere(Predicate<HexGameState> condition) {
+    public long deleteWhere(Predicate<GameState<HexPosition>> condition) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
@@ -55,17 +55,17 @@ public class H2GameRepository extends DataRepository<HexGameState, String> {
     }
 
     @Override
-    public <R> R executeInTransaction(Function<DataRepository<HexGameState, String>, R> operation) {
+    public <R> R executeInTransaction(Function<DataRepository<GameState<HexPosition>, String>, R> operation) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public List<HexGameState> findWithPagination(int page, int size) {
+    public List<GameState<HexPosition>> findWithPagination(int page, int size) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public List<HexGameState> findAllSorted(Function<HexGameState, ? extends Comparable<?>> sortKeyExtractor, boolean ascending) {
+    public List<GameState<HexPosition>> findAllSorted(Function<GameState<HexPosition>, ? extends Comparable<?>> sortKeyExtractor, boolean ascending) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
