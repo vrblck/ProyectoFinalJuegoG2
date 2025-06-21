@@ -13,25 +13,37 @@ import com.atraparalagato.impl.strategy.BFSCatMovement;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class HexGameService extends GameService<HexPosition> {
 
+    private static int lastBoardSize = 9;
+
     public HexGameService() {
         super(
-            new HexGameBoard(9), // GameBoard<HexPosition>
-            new BFSCatMovement(new HexGameBoard(9)), // CatMovementStrategy<HexPosition>
-            new H2GameRepository(), // DataRepository<HexGameState, String>
-            () -> UUID.randomUUID().toString(), // Supplier<String>
-            HexGameBoard::new, // Function<Integer, GameBoard<HexPosition>>
-            id -> new HexGameState(id, 9) // Function<String, GameState<HexPosition>>
+            new HexGameBoard(9),
+            new BFSCatMovement(new HexGameBoard(9)),
+            new H2GameRepository(),
+            () -> UUID.randomUUID().toString(),
+            HexGameBoard::new,
+            id -> new HexGameState(id, HexGameService.lastBoardSize) // acceso estático correcto
         );
+    }
+
+    // Método para actualizar el tamaño antes de crear el juego
+    public void setLastBoardSize(int boardSize) {
+        HexGameService.lastBoardSize = boardSize;
     }
 
     @Override
     protected void initializeGame(GameState<HexPosition> gameState, GameBoard<HexPosition> board) {
-        // Implementación mínima
+        // Inicializa el estado del juego como en el ejemplo
+        if (gameState instanceof HexGameState hexGameState && board instanceof HexGameBoard hexBoard) {
+            int center = hexBoard.getSize() / 2;
+            hexGameState.setCatPosition(new HexPosition(center, center));
+        }
+        // Puedes agregar callbacks si lo deseas
+        gameState.setOnStateChanged(gs -> {});
+        gameState.setOnGameEnded(gs -> {});
     }
 
     @Override
@@ -56,5 +68,12 @@ public class HexGameService extends GameService<HexPosition> {
     public Optional<HexPosition> getSuggestedMove(String gameId) {
         // Implementación mínima
         return Optional.empty();
+    }
+
+    // NO sobrescribas startNewGame(int) ni accedas a lastBoardSize como this.lastBoardSize
+
+    // Si necesitas exponer el estado del juego:
+    public Optional<GameState<HexPosition>> getGameState(String gameId) {
+        return super.loadGameState(gameId);
     }
 }

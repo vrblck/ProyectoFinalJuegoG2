@@ -53,7 +53,7 @@ public class HexGameState extends GameState<HexPosition> {
     @Override
     protected boolean performMove(HexPosition position) {
         if (gameBoard.isValidMove(position)) {
-            gameBoard.executeMove(position);
+            gameBoard.executeMove(position); // Esto bloquea la celda
             return true;
         }
         return false;
@@ -64,13 +64,38 @@ public class HexGameState extends GameState<HexPosition> {
      * En este caso, verifica si hay un ganador o si el juego termina en empate.
      */
     @Override
-    protected void updateGameStatus() {}
+    protected void updateGameStatus() {
+        if (isCatAtBorder()) {
+            setStatus(GameStatus.PLAYER_LOST); // El gato escapó
+        } else if (isCatTrapped()) {
+            setStatus(GameStatus.PLAYER_WON); // El gato está atrapado
+        } else {
+            setStatus(GameStatus.IN_PROGRESS);
+        }
+    }
+
+    // Métodos auxiliares:
+    private boolean isCatAtBorder() {
+        // El gato escapa si está en el borde
+        return Math.abs(catPosition.getQ()) == boardSize ||
+               Math.abs(catPosition.getR()) == boardSize ||
+               Math.abs(catPosition.getS()) == boardSize;
+    }
+
+    private boolean isCatTrapped() {
+        // El gato está atrapado si todas las adyacentes están bloqueadas
+        return gameBoard.getAdjacentPositions(catPosition).stream()
+                .allMatch(gameBoard::isBlocked);
+    }
 
     @Override
     public HexPosition getCatPosition() { return catPosition; }
 
     @Override
-    public void setCatPosition(HexPosition position) { this.catPosition = position; }
+    public void setCatPosition(HexPosition position) {
+        this.catPosition = position;
+        updateGameStatus();
+    }
 
     /**
      * Verifica si el juego ha terminado.
@@ -94,4 +119,8 @@ public class HexGameState extends GameState<HexPosition> {
 
     @Override
     public void restoreFromSerializable(Object serializedState) {}
+
+    public HexGameBoard getGameBoard() {
+        return gameBoard;
+    }
 }

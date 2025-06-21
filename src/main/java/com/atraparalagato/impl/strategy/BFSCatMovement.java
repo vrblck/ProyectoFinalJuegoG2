@@ -38,8 +38,10 @@ public class BFSCatMovement extends CatMovementStrategy<HexPosition> {
      */
     @Override
     protected List<HexPosition> getPossibleMoves(HexPosition currentPosition) {
-        // TODO: Implementar la lógica para obtener movimientos posibles usando BFS
-        return new ArrayList<>();
+        // Movimiento simple: cualquier adyacente no bloqueado
+        return board.getAdjacentPositions(currentPosition).stream()
+            .filter(pos -> !board.isBlocked(pos))
+            .toList();
     }
 
     /**
