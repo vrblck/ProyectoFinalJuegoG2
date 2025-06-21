@@ -9,6 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.Comparator;
+import java.util.Queue;          
+import java.util.LinkedList;     
+import java.util.Map;             
+import java.util.HashMap;         
+import java.util.Collections;     
 
 /**
  * Estrategia de movimiento del gato basada en el algoritmo BFS (Breadth-First Search).
@@ -49,12 +55,14 @@ public class BFSCatMovement extends CatMovementStrategy<HexPosition> {
      * En esta implementación, simplemente retorna el primer movimiento posible.
      */
     @Override
-    protected Optional<HexPosition> selectBestMove(List<HexPosition> possibleMoves, 
-                                                   HexPosition currentPosition, 
-                                                   HexPosition targetPosition) {
-        return possibleMoves.isEmpty() ? Optional.empty() : Optional.of(possibleMoves.get(0));
-    }
-
+    protected Optional<HexPosition> selectBestMove(List<HexPosition> possibleMoves,
+                                               HexPosition currentPosition,
+                                               HexPosition ignore) {
+    List<HexPosition> path = getFullPath(currentPosition, null);
+    return path.size() >= 2
+        ? Optional.of(path.get(1))
+        : Optional.empty();
+}
     /**
      * Función heurística para evaluar qué tan buena es una posición.
      * En esta implementación, todas las posiciones tienen la misma evaluación.
@@ -70,7 +78,10 @@ public class BFSCatMovement extends CatMovementStrategy<HexPosition> {
      */
     @Override
     protected Predicate<HexPosition> getGoalPredicate() {
-        return pos -> false;
+       return pos ->
+        Math.abs(pos.getQ()) == board.getSize() ||
+        Math.abs(pos.getR()) == board.getSize() ||
+        Math.abs(pos.getS()) == board.getSize(); 
     }
 
     /**
@@ -97,8 +108,29 @@ public class BFSCatMovement extends CatMovementStrategy<HexPosition> {
      * (Este método debe ser implementado completamente por los estudiantes).
      */
     @Override
-    public List<HexPosition> getFullPath(HexPosition currentPosition, HexPosition targetPosition) {
-        // TODO: Implementar la lógica para obtener el camino completo al objetivo usando BFS
-        return new ArrayList<>();
+public List<HexPosition> getFullPath(HexPosition start, HexPosition ignore) {
+    Queue<HexPosition> queue = new LinkedList<>();
+    Map<HexPosition, HexPosition> parent = new HashMap<>();
+    queue.add(start);
+    parent.put(start, null);
+
+    while (!queue.isEmpty()) {
+        HexPosition curr = queue.poll();
+        if (getGoalPredicate().test(curr)) {
+            List<HexPosition> path = new ArrayList<>();
+            for (HexPosition p = curr; p != null; p = parent.get(p))
+                path.add(p);
+            Collections.reverse(path);
+            return path;
+        }
+        for (HexPosition next : getPossibleMoves(curr)) {
+            if (!parent.containsKey(next)) {
+                parent.put(next, curr);
+                queue.add(next);
+            }
+        }
     }
+    return List.of(start);
+}
+
 }

@@ -1,7 +1,7 @@
 package com.atraparalagato.impl.model;
 
 import com.atraparalagato.base.model.Position;
-
+import java.util.Objects;
 /**
  * Clase para representar posiciones en un tablero hexagonal.
  * 
@@ -99,23 +99,19 @@ public class HexPosition extends Position {
      * @return Código hash de la posición
      */
     @Override
-    public int hashCode() {
-        return 31 * q + r;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HexPosition)) return false;
+        HexPosition other = (HexPosition) o;
+        return this.q == other.q
+            && this.r == other.r;
     }
 
-    /**
-     * Compara esta posición con otra para igualdad.
-     * @param obj Objeto a comparar
-     * @return Verdadero si las posiciones son iguales, falso en caso contrario
-     */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (!(obj instanceof HexPosition)) return false;
-        HexPosition o = (HexPosition) obj;
-        return q == o.q && r == o.r;
+    public int hashCode() {
+    // Más robusto y legible:
+        return Objects.hash(q, r);
     }
-
     /**
      * Representación en string de la posición hexagonal.
      * @return String con la representación de la posición
@@ -125,3 +121,5 @@ public class HexPosition extends Position {
         return "HexPosition(" + q + "," + r + ")";
     }
 }
+
+

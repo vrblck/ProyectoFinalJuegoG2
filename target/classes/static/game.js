@@ -81,6 +81,9 @@ class Game {
             );
             
             const gameState = await apiCall();
+            console.log('RESPUESTA /block →', gameState);
+            console.log('endMessage:', gameState.endMessage, ' score:', gameState.score, ' movesCount:', gameState.movesCount);
+
             this.renderBoard(gameState);
             this.updateStatus(gameState.status);
             this.updateMovesCount(gameState.movesCount || 0);
@@ -89,9 +92,10 @@ class Game {
             const gameEndStates = ['PLAYER_LOST', 'PLAYER_WON'];
             const isGameOver = gameEndStates.some(state => state === gameState.status);
             
-            if (isGameOver) {
-                this.showGameOver(gameState.status);
+            if (gameState.endMessage) {
+                this.showGameOver(gameState);
             }
+
         } catch (error) {
             this.handleError('Error al realizar el movimiento', error);
         }
@@ -227,41 +231,39 @@ class Game {
     }
     
     // Single Responsibility: Show game over dialog only
-    showGameOver(status) {
-        // Remove any existing dialogs first
-        this.removeGameOverDialogs();
-        
-        // Functional approach: Use object mapping for messages
-        const messages = {
-            'PLAYER_LOST': '¡El gato escapó! Mejor suerte la próxima vez.',
-            'PLAYER_WON': '¡Felicidades! ¡Atrapaste al gato!'
-        };
-        
-        const message = messages[status] || 'Juego terminado';
-        
-        const gameOver = this.createGameOverDialog(message, status);
-        document.body.appendChild(gameOver);
-    }
+// Ahora recibe el objeto completo gameState con endMessage, score y movesCount
+showGameOver(gameState) {
+    this.removeGameOverDialogs();
+    // El mensaje ya viene del backend
+    const message = gameState.endMessage;
+    const dialog = this.createGameOverDialog(message, gameState);
+    document.body.appendChild(dialog);
+}
+
+// Factory Method: Create game over dialog with improved functionality
+// Ahora recibe todo gameState para mostrar score y movesCount
+createGameOverDialog(message, gameState) {
+    const gameOver = document.createElement('div');
+    gameOver.className = 'game-over';
     
-    // Factory Method: Create game over dialog with improved functionality
-    createGameOverDialog(message, status) {
-        const gameOver = document.createElement('div');
-        gameOver.className = 'game-over';
-        
-        const playerName = this.playerNameInput.value.trim() || 'Anónimo';
-        
-        gameOver.innerHTML = `
-            <h2>${message}</h2>
-            <p>Jugador: ${playerName}</p>
-            <p>Movimientos: ${this.movesElement.textContent}</p>
-            <div>
-                <button onclick="saveScore('${this.gameId}', '${playerName}')">Guardar Puntuación</button>
-                <button onclick="game.closeGameOverDialog()">Cerrar</button>
-                <button onclick="game.startNewGame()">Nuevo Juego</button>
-            </div>
-        `;
-        return gameOver;
-    }
+    const playerName = this.playerNameInput.value.trim() || 'Anónimo';
+    
+    gameOver.innerHTML = `
+        <h2>${message}</h2>
+        <p>Jugador: ${playerName}</p>
+        <p>Puntuación: ${gameState.score}</p>
+        <p>Movimientos: ${gameState.movesCount}</p>
+        <div>
+            <button onclick="saveScore('${this.gameId}', '${playerName}')">
+                Guardar Puntuación
+            </button>
+            <button onclick="game.closeGameOverDialog()">Cerrar</button>
+            <button onclick="game.startNewGame()">Nuevo Juego</button>
+        </div>
+    `;
+    return gameOver;
+}
+
     
     // Single Responsibility: Close game over dialog
     closeGameOverDialog() {

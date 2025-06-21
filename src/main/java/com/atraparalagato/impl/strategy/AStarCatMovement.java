@@ -38,10 +38,11 @@ public class AStarCatMovement extends CatMovementStrategy<HexPosition> {
      * Debe considerar las reglas del tablero y posiciones bloqueadas.
      */
     @Override
-    protected List<HexPosition> getPossibleMoves(HexPosition currentPosition) {
-        return new ArrayList<>();
+    protected List<HexPosition> getPossibleMoves(HexPosition current) {
+    return board.getAdjacentPositions(current).stream()
+                .filter(p -> !board.isBlocked(p))
+                .toList();
     }
-
     /**
      * Selecciona el mejor movimiento de una lista de movimientos posibles.
      * Aquí es donde los estudiantes implementan su algoritmo específico.
@@ -59,17 +60,19 @@ public class AStarCatMovement extends CatMovementStrategy<HexPosition> {
      * Ejemplo de programación funcional: Function<T, Double>
      */
     @Override
-    protected Function<HexPosition, Double> getHeuristicFunction(HexPosition targetPosition) {
-        return pos -> 0.0;
+    protected Function<HexPosition, Double> getHeuristicFunction(HexPosition target) {
+    return pos -> pos.distanceTo(target);
     }
-
     /**
      * Predicado para determinar si una posición es un objetivo válido.
      * Ejemplo: posiciones en el borde del tablero para escapar.
      */
     @Override
     protected Predicate<HexPosition> getGoalPredicate() {
-        return pos -> false;
+        return pos ->
+        Math.abs(pos.getQ()) == board.getSize() ||
+        Math.abs(pos.getR()) == board.getSize() ||
+        Math.abs(pos.getS()) == board.getSize();
     }
 
     /**

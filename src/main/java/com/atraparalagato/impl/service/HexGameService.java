@@ -8,7 +8,6 @@ import com.atraparalagato.impl.model.HexGameBoard;
 import com.atraparalagato.impl.model.HexGameState;
 import com.atraparalagato.impl.model.HexPosition;
 import com.atraparalagato.impl.repository.H2GameRepository;
-import com.atraparalagato.base.strategy.CatMovementStrategy;
 import com.atraparalagato.impl.strategy.BFSCatMovement;
 
 import java.util.Optional;
@@ -25,55 +24,73 @@ public class HexGameService extends GameService<HexPosition> {
             new H2GameRepository(),
             () -> UUID.randomUUID().toString(),
             HexGameBoard::new,
-            id -> new HexGameState(id, HexGameService.lastBoardSize) // acceso estático correcto
+            id -> new HexGameState(id, HexGameService.lastBoardSize)
         );
     }
 
-    // Método para actualizar el tamaño antes de crear el juego
     public void setLastBoardSize(int boardSize) {
         HexGameService.lastBoardSize = boardSize;
     }
 
     @Override
     protected void initializeGame(GameState<HexPosition> gameState, GameBoard<HexPosition> board) {
-        // Inicializa el estado del juego como en el ejemplo
-        if (gameState instanceof HexGameState hexGameState && board instanceof HexGameBoard hexBoard) {
-            
-            hexGameState.setCatPosition(new HexPosition(0, 0));
+        if (gameState instanceof HexGameState hexState && board instanceof HexGameBoard) {
+            // Posición inicial del gato en el centro
+            hexState.setCatPosition(new HexPosition(0, 0));
+            // No configurar aquí onGameEnded, se maneja en el hook override
         }
-        // Puedes agregar callbacks si lo deseas
+        // Opcional: otros callbacks
         gameState.setOnStateChanged(gs -> {});
-        gameState.setOnGameEnded(gs -> {});
+    }
+
+    @Override
+    protected void executeCatMove(GameState<HexPosition> gs) {
+        HexGameState state = (HexGameState) gs;
+        HexGameBoard board = state.getGameBoard();
+
+        BFSCatMovement strat = new BFSCatMovement(board);
+        Optional<HexPosition> next = strat.findBestMove(state.getCatPosition(), null);
+
+        next.ifPresent(pos -> {
+            state.setCatPosition(pos);
+            onCatMoved(state, pos);
+        });
+    }
+
+    @Override
+    protected void onGameEnded(GameState<HexPosition> gs) {
+        HexGameState state = (HexGameState) gs;
+        if (state.hasPlayerWon()) {
+            System.out.println("¡Ganaste, atrapaste al gato!");
+        } else {
+            System.out.println("¡Perdiste, el gato escapó!");
+        }
     }
 
     @Override
     protected HexPosition getTargetPosition(GameState<HexPosition> gameState) {
-        // Implementación mínima
+        // No utilizado por BFSCatMovement
         return null;
     }
 
     @Override
     public Object getGameStatistics(String gameId) {
-        // Implementación mínima
         return null;
     }
 
     @Override
     public boolean isValidMove(String gameId, HexPosition position) {
-        // Implementación mínima
         return false;
     }
 
     @Override
     public Optional<HexPosition> getSuggestedMove(String gameId) {
-        // Implementación mínima
         return Optional.empty();
     }
 
-    // NO sobrescribas startNewGame(int) ni accedas a lastBoardSize como this.lastBoardSize
-
-    // Si necesitas exponer el estado del juego:
     public Optional<GameState<HexPosition>> getGameState(String gameId) {
         return super.loadGameState(gameId);
     }
 }
+
+

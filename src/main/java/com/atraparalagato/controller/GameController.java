@@ -209,8 +209,11 @@ public class GameController {
     
     // Métodos privados para implementación de estudiantes (placeholder)
     
-    private ResponseEntity<Map<String, Object>> startGameWithStudentImplementation(int boardSize) {
-        GameState<HexPosition> gameState = hexGameService.startNewGame(boardSize);
+    private ResponseEntity<Map<String,Object>> startGameWithStudentImplementation(int boardSize) {
+    // 1) Avisamos al servicio del tamaño real
+    hexGameService.setLastBoardSize(boardSize);
+    // 2) Ahora creamos el juego con ese tamaño  
+    GameState<HexPosition> gameState = hexGameService.startNewGame(boardSize);
 
         Map<String, Object> response = new HashMap<>();
         response.put("gameId", gameState.getGameId());
@@ -218,31 +221,47 @@ public class GameController {
         response.put("catPosition", Map.of("q", gameState.getCatPosition().getQ(), "r", gameState.getCatPosition().getR()));
         response.put("blockedCells", ((HexGameState)gameState).getGameBoard().getBlockedPositions());
         response.put("movesCount", gameState.getMoveCount());
+        response.put("score", 0);
+        response.put("endMessage", "");
         response.put("boardSize", boardSize);
         response.put("implementation", "impl");
 
         return ResponseEntity.ok(response);
     }
     
-    private ResponseEntity<Map<String, Object>> blockPositionWithStudentImplementation(String gameId, HexPosition position) {
-        Optional<GameState<HexPosition>> gameStateOpt = hexGameService.executePlayerMove(gameId, position);
+    private ResponseEntity<Map<String,Object>> blockPositionWithStudentImplementation(
+        String gameId, HexPosition position) {
 
-        if (gameStateOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
+    Optional<GameState<HexPosition>> gameStateOpt =
+        hexGameService.executePlayerMove(gameId, position);
 
-        GameState<HexPosition> gameState = gameStateOpt.get();
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("gameId", gameState.getGameId());
-        response.put("status", gameState.getStatus().toString());
-        response.put("catPosition", Map.of("q", gameState.getCatPosition().getQ(), "r", gameState.getCatPosition().getR()));
-        response.put("blockedCells", ((HexGameState)gameState).getGameBoard().getBlockedPositions());
-        response.put("movesCount", gameState.getMoveCount());
-        response.put("implementation", "impl");
-
-        return ResponseEntity.ok(response);
+    if (gameStateOpt.isEmpty()) {
+        return ResponseEntity.notFound().build();
     }
+    HexGameState gameState = (HexGameState) gameStateOpt.get();
+
+    Map<String,Object> response = new HashMap<>();
+    response.put("gameId",      gameState.getGameId());
+    response.put("status",      gameState.getStatus().toString());
+    response.put("catPosition", Map.of("q", gameState.getCatPosition().getQ(),
+                                        "r", gameState.getCatPosition().getR()));
+    response.put("blockedCells", gameState.getGameBoard().getBlockedPositions());
+    response.put("movesCount",  gameState.getMoveCount());
+    // NUEVO: puntuación del jugador (número de muros colocados)
+    response.put("score",       gameState.calculateScore());
+    // NUEVO: mensaje si el juego ha terminado
+    if (!gameState.isGameFinished()) {
+      response.put("endMessage", "");
+    } else if (gameState.hasPlayerWon()) {
+      response.put("endMessage", "¡Felicidades, atrapaste al gato!");
+    } else {
+      response.put("endMessage", "¡El gato escapó! Mejor suerte la próxima vez.");
+    }
+    response.put("implementation", "impl");
+
+    return ResponseEntity.ok(response);
+}
+
 
     private ResponseEntity<Map<String, Object>> getGameStateWithStudentImplementation(String gameId) {
         Optional<GameState<HexPosition>> gameStateOpt = hexGameService.getGameState(gameId);
@@ -259,8 +278,18 @@ public class GameController {
         response.put("catPosition", Map.of("q", gameState.getCatPosition().getQ(), "r", gameState.getCatPosition().getR()));
         response.put("blockedCells", ((HexGameState)gameState).getGameBoard().getBlockedPositions());
         response.put("movesCount", gameState.getMoveCount());
+        HexGameState gs = (HexGameState) gameState;
+        response.put("score",       gs.calculateScore());
+        response.put("endMessage",  gs.isGameFinished()
+            ? (gs.hasPlayerWon()
+                ? "¡Felicidades, atrapaste al gato!"
+                : "¡El gato escapó! Mejor suerte la próxima vez.")
+            : "");
+
         response.put("implementation", "impl");
 
         return ResponseEntity.ok(response);
     }
 }
+
+
