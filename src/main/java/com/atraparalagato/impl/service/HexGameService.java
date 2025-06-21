@@ -38,8 +38,8 @@ public class HexGameService extends GameService<HexPosition> {
     protected void initializeGame(GameState<HexPosition> gameState, GameBoard<HexPosition> board) {
         // Inicializa el estado del juego como en el ejemplo
         if (gameState instanceof HexGameState hexGameState && board instanceof HexGameBoard hexBoard) {
-            int center = hexBoard.getSize() / 2;
-            hexGameState.setCatPosition(new HexPosition(center, center));
+            
+            hexGameState.setCatPosition(new HexPosition(0, 0));
         }
         // Puedes agregar callbacks si lo deseas
         gameState.setOnStateChanged(gs -> {});
