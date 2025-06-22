@@ -10,7 +10,8 @@
 class Game {
     constructor() {
         this.gameId = null;
-        this.boardSize = 5;
+        this.boardSizeInput = document.getElementById('board-size');
+        this.boardSize = parseInt(this.boardSizeInput?.value) || 5;
         this.board = document.getElementById('board');
         this.statusElement = document.getElementById('game-status');
         this.movesElement = document.getElementById('moves-count');
@@ -45,6 +46,9 @@ class Game {
     // Single Responsibility: Start new game only
     async startNewGame() {
         try {
+            // Actualizar boardSize desde el input antes de iniciar el juego
+            this.boardSize = parseInt(this.boardSizeInput?.value) || 5;
+            
             // Remove any existing game over dialogs
             this.removeGameOverDialogs();
             
@@ -54,6 +58,7 @@ class Game {
             });
             
             const gameState = await apiCall();
+            // Siempre asignar el nuevo gameId recibido del backend
             this.gameId = gameState.gameId;
             this.renderBoard(gameState);
             this.updateStatus(gameState.status);
@@ -397,4 +402,4 @@ const initializeGame = () => {
 };
 
 // Module Pattern: Encapsulate initialization
-window.addEventListener('load', initializeGame); 
+window.addEventListener('load', initializeGame);

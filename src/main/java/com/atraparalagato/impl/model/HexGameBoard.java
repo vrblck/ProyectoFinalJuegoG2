@@ -70,6 +70,10 @@ public class HexGameBoard extends GameBoard<HexPosition> {
     public boolean isBlocked(HexPosition pos) {
         return blockedPositions.contains(pos);
     }
+
+    public int getBoardSize() {
+        return this.size;
+    }
 }
 
 

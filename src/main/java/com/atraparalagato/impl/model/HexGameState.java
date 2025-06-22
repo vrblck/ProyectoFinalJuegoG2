@@ -14,6 +14,9 @@ public class HexGameState extends GameState<HexPosition> {
     private final HexGameBoard gameBoard;
     private final int boardSize;
 
+    private long startTime = System.currentTimeMillis();
+    private long endTime = -1;
+
     public HexGameState(String gameId, int boardSize) {
         super(gameId);
         this.boardSize = boardSize;
@@ -68,6 +71,9 @@ public class HexGameState extends GameState<HexPosition> {
     public void setCatPosition(HexPosition position) {
         this.catPosition = position;
         updateGameStatus();
+        if (isGameFinished() && endTime == -1) {
+            endTime = System.currentTimeMillis();
+        }
         // Disparamos la notificación: si terminó, llamará a onGameEnded
         notifyStateChanged();
     }
@@ -106,6 +112,11 @@ public class HexGameState extends GameState<HexPosition> {
 
     public HexGameBoard getGameBoard() {
         return gameBoard;
+    }
+
+    public int getGameDurationSeconds() {
+        long end = (endTime != -1) ? endTime : System.currentTimeMillis();
+        return (int) ((end - startTime) / 1000);
     }
 }
 

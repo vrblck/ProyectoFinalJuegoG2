@@ -58,6 +58,7 @@ class Game {
             });
             
             const gameState = await apiCall();
+            // Siempre asignar el nuevo gameId recibido del backend
             this.gameId = gameState.gameId;
             this.renderBoard(gameState);
             this.updateStatus(gameState.status);

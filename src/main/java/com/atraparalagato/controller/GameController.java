@@ -5,11 +5,15 @@ import com.atraparalagato.example.service.ExampleGameService;
 import com.atraparalagato.impl.service.HexGameService;
 import com.atraparalagato.impl.model.HexPosition;
 import com.atraparalagato.impl.model.HexGameState;
+import com.atraparalagato.impl.model.Score;
+import com.atraparalagato.impl.repository.ScoreRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -30,6 +34,9 @@ public class GameController {
     
     private final ExampleGameService exampleGameService;
     private final HexGameService hexGameService = new HexGameService();
+    
+    @Autowired
+    private ScoreRepository scoreRepository;
 
     public GameController() {
         this.exampleGameService = new ExampleGameService();
@@ -148,6 +155,57 @@ public class GameController {
                 "Usando implementaciones de estudiantes");
         
         return ResponseEntity.ok(info);
+    }
+    
+    /**
+     * Guardar puntuación del jugador
+     */
+    @PostMapping("/save-score")
+    public ResponseEntity<?> saveScore(@RequestParam String gameId, @RequestParam String playerName) {
+        Optional<GameState<HexPosition>> gameStateOpt = hexGameService.getGameState(gameId);
+        if (gameStateOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        HexGameState gameState = (HexGameState) gameStateOpt.get();
+        Score score = new Score(
+            gameId,
+            playerName,
+            gameState.calculateScore(),
+            gameState.getMoveCount(),
+            gameState.getGameBoard().getBoardSize(),
+            gameState.hasPlayerWon(),
+            gameState.getGameDurationSeconds(),
+            java.time.LocalDateTime.now()
+        );
+        scoreRepository.save(score);
+        return ResponseEntity.ok(Map.of("message", "Puntuación guardada exitosamente"));
+    }
+
+    /**
+     * Obtener top 10 puntuaciones
+     */
+    @GetMapping("/high-scores")
+    public ResponseEntity<List<Score>> getHighScores(@RequestParam(defaultValue = "10") int limit) {
+        List<Score> scores = scoreRepository.findTopScores(limit);
+        return ResponseEntity.ok(scores);
+    }
+
+    /**
+     * Obtener solo puntuaciones ganadoras
+     */
+    @GetMapping("/winning-scores")
+    public ResponseEntity<List<Score>> getWinningScores() {
+        List<Score> scores = scoreRepository.findWinningScores();
+        return ResponseEntity.ok(scores);
+    }
+
+    /**
+     * Obtener puntuaciones recientes
+     */
+    @GetMapping("/recent-scores")
+    public ResponseEntity<List<Score>> getRecentScores(@RequestParam(defaultValue = "20") int limit) {
+        List<Score> scores = scoreRepository.findRecentScores(limit);
+        return ResponseEntity.ok(scores);
     }
     
     // Métodos privados para implementación de ejemplo
