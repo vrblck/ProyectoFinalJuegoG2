@@ -20,6 +20,17 @@ class Game {
         
         // Dependency Injection - Game depends on DOM abstractions
         this.initializeEventListeners();
+        
+        this.isGameOver = false;
+        // Sonidos
+        this.moveSound = new Audio('sound/move.mp3');
+        this.winSound = new Audio('sound/win.mp3');
+        this.loseSound = new Audio('sound/lose.mp3');
+        this.backgroundSound = new Audio('sound/background.mp3');
+        this.backgroundSound.loop = true;
+        this.backgroundSound.volume = 0.3;
+        // Iniciar sonido de fondo
+        this.playBackgroundSound();
     }
     
     // Single Responsibility: Initialize event listeners only
@@ -52,6 +63,8 @@ class Game {
             // Remove any existing game over dialogs
             this.removeGameOverDialogs();
             
+            this.isGameOver = false; // Reinicia el estado de juego terminado
+            
             // Higher-Order Function usage
             const apiCall = this.createApiCall(`/api/game/start?boardSize=${this.boardSize}`, {
                 method: 'GET'
@@ -63,6 +76,7 @@ class Game {
             this.renderBoard(gameState);
             this.updateStatus(gameState.status);
             this.updateMovesCount(gameState.movesCount || 0);
+            this.playBackgroundSound();
         } catch (error) {
             this.handleError('Error al iniciar el juego', error);
         }
@@ -76,7 +90,7 @@ class Game {
     
     // Single Responsibility: Handle player moves only
     async makeMove(q, r) {
-        if (!this.gameId) return;
+        if (!this.gameId || this.isGameOver) return; // Bloquea si terminó
         
         try {
             // Higher-Order Function usage
@@ -93,11 +107,24 @@ class Game {
             this.updateStatus(gameState.status);
             this.updateMovesCount(gameState.movesCount || 0);
             
+            // Detener y reiniciar el sonido de movimiento antes de reproducir
+            this.moveSound.pause();
+            this.moveSound.currentTime = 0;
+            this.moveSound.play().catch(() => {});
+            
             // Functional approach: Use filter to check game end conditions
             const gameEndStates = ['PLAYER_LOST', 'PLAYER_WON'];
             const isGameOver = gameEndStates.some(state => state === gameState.status);
             
             if (gameState.endMessage) {
+                this.isGameOver = true; // Marca como terminado
+                if (gameState.status === 'PLAYER_WON') {
+                    this.winSound.currentTime = 0;
+                    this.winSound.play().catch(() => {});
+                } else if (gameState.status === 'PLAYER_LOST') {
+                    this.loseSound.currentTime = 0;
+                    this.loseSound.play().catch(() => {});
+                }
                 this.showGameOver(gameState);
             }
 
@@ -131,6 +158,13 @@ class Game {
         
         // Functional approach: forEach for side effects (DOM manipulation)
         cells.forEach(cell => this.board.appendChild(cell));
+        
+        // Oscurece el tablero si el juego terminó
+        if (this.isGameOver) {
+            this.board.classList.add('board-disabled');
+        } else {
+            this.board.classList.remove('board-disabled');
+        }
     }
     
     // Pure Function: Generate cell positions without side effects
@@ -238,7 +272,10 @@ class Game {
     // Single Responsibility: Show game over dialog only
 // Ahora recibe el objeto completo gameState con endMessage, score y movesCount
 showGameOver(gameState) {
+    this.isGameOver = true;
     this.removeGameOverDialogs();
+    // Detener fondo si quieres (opcional):
+    this.stopBackgroundSound();
     // El mensaje ya viene del backend
     const message = gameState.endMessage;
     const dialog = this.createGameOverDialog(message, gameState);
@@ -272,6 +309,7 @@ createGameOverDialog(message, gameState) {
     
     // Single Responsibility: Close game over dialog
     closeGameOverDialog() {
+        // this.isGameOver = false; // Elimina esta línea para que el juego siga bloqueado
         this.removeGameOverDialogs();
     }
     
@@ -279,6 +317,16 @@ createGameOverDialog(message, gameState) {
     handleError(message, error) {
         console.error(message, error);
         alert(message);
+    }
+    
+    playBackgroundSound() {
+        // Intenta reproducir el sonido de fondo (algunos navegadores requieren interacción)
+        this.backgroundSound.play().catch(() => {});
+    }
+    
+    stopBackgroundSound() {
+        this.backgroundSound.pause();
+        this.backgroundSound.currentTime = 0;
     }
 }
 
