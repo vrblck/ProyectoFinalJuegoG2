@@ -27,12 +27,10 @@ class Game {
         this.winSound = new Audio('sound/win.mp3');
         this.loseSound = new Audio('sound/lose.mp3');
         this.backgroundSound = new Audio('sound/background.mp3');
-        this.backgroundSound.loop = true;
-        this.backgroundSound.volume = 0.3;
-        // Iniciar sonido de fondo
+        this.backgroundSound.loop = true;        // Iniciar sonido de fondo
         this.playBackgroundSound();
     }
-    
+
     // Single Responsibility: Initialize event listeners only
     initializeEventListeners() {
         this.startButton.addEventListener('click', () => this.startNewGame());
@@ -451,3 +449,30 @@ const initializeGame = () => {
 
 // Module Pattern: Encapsulate initialization
 window.addEventListener('load', initializeGame);
+
+
+window.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('volume-slider');
+    if (!slider) return;
+
+    // Inicializa el volumen al valor del slider
+    const setAllVolumes = (value) => {
+        if (window.game) {
+            window.game.moveSound.volume = value;
+            window.game.winSound.volume = value;
+            window.game.loseSound.volume = value;
+            window.game.backgroundSound.volume = value;
+        }
+    };
+
+    // Cuando cambie el slider, ajusta el volumen de todos los sonidos
+    slider.addEventListener('input', (e) => {
+        setAllVolumes(Number(e.target.value));
+    });
+
+    // Si el juego ya está cargado, sincroniza el volumen inicial
+    if (window.game) {
+        setAllVolumes(Number(slider.value));
+    }
+});
+
