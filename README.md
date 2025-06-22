@@ -25,6 +25,7 @@ mvn spring-boot:run
 http://localhost:8081
 ```
 
+
 ## Cómo jugar
 
 1. Haz clic en "Nuevo Juego" para comenzar una partida.
