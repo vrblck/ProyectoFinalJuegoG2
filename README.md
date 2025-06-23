@@ -73,36 +73,11 @@ src/
 ## Diagrama de flujo del juego
 
 ```
-[Inicio]
-   |
-   v
-[Petición HTTP al endpoint /api/game/...]
-   |
-   v
-¿game.use-example-implementation = true?
-   |                         |
-  Sí                        No
-   |                         |
-   v                         v
-[Usar lógica de ejemplo]   [Usar lógica de estudiantes]
-   |                         |
-   v                         v
-[Servicios y lógica de     [Servicios y lógica de
- ExampleGameService]        HexGameService]
-   |                         |
-   v                         v
-[Actualizar estado del     [Actualizar estado del
- juego, mover gato, etc.]   juego, mover gato, etc.]
-   |                         |
-   v                         v
-[Construir respuesta       [Construir respuesta
- con datos del juego]       con datos del juego]
-   |                         |
-   v                         v
-[Enviar respuesta HTTP al frontend]
-   |
-   v
-[Fin]
+El siguiente diagrama de flujo representa la arquitectura general del proyecto Atrapar al Gato. En la parte superior se encuentra el frontend, encargado de la interacción con el usuario y la presentación visual. Las acciones del usuario se envían al backend a través de una API REST, gestionada por el controlador GameController.
+
+El controlador delega las operaciones al servicio principal, HexGameService, que coordina la lógica del juego. Este servicio utiliza diferentes componentes de implementación: modelos para representar el estado del juego y el tablero, estrategias para el movimiento del gato y un repositorio para la persistencia de datos. Cada uno de estos componentes implementa una interfaz o clase base, lo que permite una arquitectura flexible y fácilmente extensible.
+
+Este diseño modular facilita la separación de responsabilidades, el mantenimiento del código y la incorporación de nuevas funcionalidades en el futuro.
 ```
 ## API Endpoints
 
