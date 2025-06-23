@@ -82,6 +82,13 @@ public class H2GameRepository extends DataRepository<GameState<HexPosition>, Str
     @Override
     public List<GameState<HexPosition>> findWithPagination(int page, int size) {
         List<GameState<HexPosition>> all = findAll();
+
+        // Ordenar por gameId numéricamente (extraemos el número después de "game-")
+        all.sort(Comparator.comparingInt(gs -> {
+            String id = gs.getGameId();
+            return Integer.parseInt(id.substring(5));
+        }));
+
         int from = Math.min(page * size, all.size());
         int to = Math.min(from + size, all.size());
         return all.subList(from, to);
