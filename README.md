@@ -46,6 +46,29 @@ http://localhost:8081
   - HTML5
   - CSS3
   - JavaScript (Vanilla)
+
+
+## Estructura del proyecto
+
+```
+src/
+├── main/
+│   ├── java/
+│   │   └── com/
+│   │       └── atraparalagato/
+│   │           ├── controller/
+│   │           │   └── GameController.java
+│   │           ├── model/
+│   │           │   ├── GameState.java
+│   │           │   └── HexPosition.java
+│   │           ├── service/
+│   │           │   └── GameService.java
+│   │           └── AtraparAlGatoApplication.java
+│   └── resources/
+│       └── static/
+│           ├── index.html
+│           ├── styles.css
+│           └── game.js
 ```
 ## Diagrama de flujo del juego
 
