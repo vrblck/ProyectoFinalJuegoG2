@@ -1,0 +1,8 @@
+com/atraparalagato/impl/model/BFSCatMovementTest$TestableBFSCatMovement.class
+com/atraparalagato/impl/model/HexGameStateTest.class
+com/atraparalagato/impl/model/HexGameServiceTest$TestableHexGameService.class
+com/atraparalagato/impl/model/HexGameBoardTest.class
+com/atraparalagato/impl/model/BFSCatMovementTest.class
+com/atraparalagato/impl/model/HexGameServiceTest.class
+com/atraparalagato/impl/repository/H2GameRepositoryTest.class
+com/atraparalagato/impl/model/HexPositionTest.class

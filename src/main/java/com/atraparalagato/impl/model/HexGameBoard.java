@@ -10,7 +10,7 @@ public class HexGameBoard extends GameBoard<HexPosition> {
         super(size);
     }
 
-    /** Inicialmente no hay muros, se irán agregando con executeMove(...) */
+    /** Inicialmente no hay muros */
     @Override
     protected Set<HexPosition> initializeBlockedPositions() {
         return new HashSet<>();
@@ -52,7 +52,7 @@ public class HexGameBoard extends GameBoard<HexPosition> {
         return result;
     }
 
-    /** Vecinos según tus direcciones (ya estaba bien) */
+    /** Vecinos según tus direcciones */
     @Override
     public List<HexPosition> getAdjacentPositions(HexPosition position) {
         int[][] dirs = {{1,0},{1,-1},{0,-1},{-1,0},{-1,1},{0,1}};
@@ -71,10 +71,17 @@ public class HexGameBoard extends GameBoard<HexPosition> {
         return blockedPositions.contains(pos);
     }
 
+    /** NUEVO: método público para bloquear una posición */
+    public void blockTile(HexPosition pos) {
+        executeMove(pos);
+    }
+
+    /** NUEVO: método público para saber si está bloqueado */
+    public boolean isTileBlocked(HexPosition pos) {
+        return isBlocked(pos);
+    }
+
     public int getBoardSize() {
         return this.size;
     }
 }
-
-
-
