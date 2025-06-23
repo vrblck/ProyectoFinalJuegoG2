@@ -46,30 +46,41 @@ http://localhost:8081
   - HTML5
   - CSS3
   - JavaScript (Vanilla)
-
-## Estructura del proyecto
+```
+## Diagrama de flujo del juego
 
 ```
-src/
-├── main/
-│   ├── java/
-│   │   └── com/
-│   │       └── atraparalagato/
-│   │           ├── controller/
-│   │           │   └── GameController.java
-│   │           ├── model/
-│   │           │   ├── GameState.java
-│   │           │   └── HexPosition.java
-│   │           ├── service/
-│   │           │   └── GameService.java
-│   │           └── AtraparAlGatoApplication.java
-│   └── resources/
-│       └── static/
-│           ├── index.html
-│           ├── styles.css
-│           └── game.js
+[Inicio]
+   |
+   v
+[Petición HTTP al endpoint /api/game/...]
+   |
+   v
+¿game.use-example-implementation = true?
+   |                         |
+  Sí                        No
+   |                         |
+   v                         v
+[Usar lógica de ejemplo]   [Usar lógica de estudiantes]
+   |                         |
+   v                         v
+[Servicios y lógica de     [Servicios y lógica de
+ ExampleGameService]        HexGameService]
+   |                         |
+   v                         v
+[Actualizar estado del     [Actualizar estado del
+ juego, mover gato, etc.]   juego, mover gato, etc.]
+   |                         |
+   v                         v
+[Construir respuesta       [Construir respuesta
+ con datos del juego]       con datos del juego]
+   |                         |
+   v                         v
+[Enviar respuesta HTTP al frontend]
+   |
+   v
+[Fin]
 ```
-
 ## API Endpoints
 
 - `POST /api/game/start?boardSize={size}`: Inicia un nuevo juego
